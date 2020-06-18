@@ -82,7 +82,7 @@ tyrannical.tags = {
     } ,
     {
         -- name        = "Mail",                 -- Call the tag "Mail"
-        icon   = "/home/jvalenzuela/.config/awesome/material-awesome/theme/icons/chart-areaspline.svg",
+        icon   = "/home/jvalenzuela/.config/awesome/material-awesome/theme/icons/ship-wheel.svg",
         init        = true,                   -- Load the tag on startup
         exec_once   = {
             "/home/jvalenzuela/workconfig/bin/gmail.sh",
@@ -446,7 +446,11 @@ globalkeys = gears.table.join(
               {description = "lua execute prompt", group = "awesome"}),
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end,
-              {description = "show the menubar", group = "launcher"})
+              {description = "show the menubar", group = "launcher"}),
+
+    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer set Master toggle") end, false),
+    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 5%-") end, false),
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 5%+") end, false)
 )
 
 clientkeys = gears.table.join(
