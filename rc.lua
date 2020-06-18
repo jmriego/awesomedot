@@ -70,7 +70,7 @@ modkey = "Mod4"
 tyrannical.tags = {
     {
         -- name        = "Code",                 -- Call the tag "Term"
-        icon   = "/home/jvalenzuela/.config/awesome/material-awesome/theme/icons/code-braces.svg",
+        icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/code-braces.svg",
         init        = true,                   -- Load the tag on startup
         exclusive   = false,                   -- Refuse any other type of clients (by classes)
         screen      = screen.count()>1 and {2,3} or {1},
@@ -82,7 +82,7 @@ tyrannical.tags = {
     } ,
     {
         -- name        = "Mail",                 -- Call the tag "Mail"
-        icon   = "/home/jvalenzuela/.config/awesome/material-awesome/theme/icons/ship-wheel.svg",
+        icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/ship-wheel.svg",
         init        = true,                   -- Load the tag on startup
         exec_once   = {
             "/home/jvalenzuela/workconfig/bin/gmail.sh",
@@ -98,7 +98,7 @@ tyrannical.tags = {
     } ,
     {
         -- name        = "Internet",
-        icon   = "/home/jvalenzuela/.config/awesome/material-awesome/theme/icons/google-chrome.svg",
+        icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/google-chrome.svg",
         init        = true,
         exclusive   = true,
         screen      = screen.count()>2 and {1,3} or {1,2},-- Setup on screen 2 if there is more than 1 screen, else on screen 1
@@ -112,7 +112,7 @@ tyrannical.tags = {
     } ,
     {
         -- name        = "Comms",
-        icon   = "/home/jvalenzuela/.config/awesome/material-awesome/theme/icons/forum.svg",
+        icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/forum.svg",
         screen      = {1},
         exec_once   = {"slack"}, --When the tag is accessed for the first time, execute this command
         init        = true, -- This tag wont be created at startup, but will be when one of the
@@ -125,7 +125,7 @@ tyrannical.tags = {
     } ,
     {
         -- name        = "Others",
-        icon   = "/home/jvalenzuela/.config/awesome/material-awesome/theme/icons/flask.svg",
+        icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/flask.svg",
         screen      = {1,2,3},
         fallback    = true,
         floating    = true,
@@ -281,7 +281,6 @@ local function set_wallpaper(s)
         gears.wallpaper.maximized(wallpaper, s, true)
     end
 end
-
 
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
