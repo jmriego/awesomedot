@@ -282,6 +282,7 @@ local function set_wallpaper(s)
     end
 end
 
+
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
 screen.connect_signal("property::geometry", set_wallpaper)
 
@@ -344,6 +345,10 @@ root.buttons(gears.table.join(
     awful.button({ }, 5, awful.tag.viewprev)
 ))
 -- }}}
+
+local with_dpi = beautiful.xresources.apply_dpi
+local get_dpi = beautiful.xresources.get_dpi
+rofi= 'rofi --dpi ' .. get_dpi() .. ' -width ' .. with_dpi(400) .. ' -show combi -combi-modi window,drun -theme ' .. gears.filesystem.get_configuration_dir() .. '/rofi.rasi'
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
@@ -444,8 +449,9 @@ globalkeys = gears.table.join(
                   }
               end,
               {description = "lua execute prompt", group = "awesome"}),
-    -- Menubar
-    awful.key({ modkey }, "p", function() menubar.show() end,
+
+    -- Menubar replaced with Rofi
+    awful.key({ modkey }, "p", function() awful.util.spawn(rofi) end,
               {description = "show the menubar", group = "launcher"}),
 
     awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer set Master toggle") end, false),
