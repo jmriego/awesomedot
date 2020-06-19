@@ -215,9 +215,13 @@ else
     })
 end
 
-
-mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
-                                     menu = mymainmenu })
+mylauncher = awful.widget.button({image = beautiful.awesome_icon})
+mylauncher:connect_signal(
+    'button::release',
+    function()
+        awful.screen.focused().left_panel.visible = not awful.screen.focused().left_panel.visible
+    end
+)
 
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
@@ -315,6 +319,9 @@ awful.screen.connect_for_each_screen(function(s)
 
     -- Create the wibox
     s.mywibox = awful.wibar({ position = "top", screen = s })
+
+    s.left_panel = require("widgets.left-panel")(s)
+    s.left_panel.visible = false -- start hidden
 
     -- Add widgets to the wibox
     s.mywibox:setup {
