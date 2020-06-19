@@ -72,7 +72,7 @@ tyrannical.tags = {
         -- name        = "Code",                 -- Call the tag "Term"
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/code-braces.svg",
         init        = true,                   -- Load the tag on startup
-        exclusive   = false,                   -- Refuse any other type of clients (by classes)
+        exclusive   = true,                   -- Refuse any other type of clients (by classes)
         screen      = screen.count()>1 and {2,3} or {1},
         floating    = false,
         layout      = awful.layout.suit.tile, -- Use the tile layout
@@ -90,7 +90,7 @@ tyrannical.tags = {
             -- "google-chrome-stable --app=https://mail.google.com",
             -- "google-chrome-stable --app=https://www.google.com/calendar/render",
         },
-        exclusive   = false,                   -- Refuse any other type of clients (by classes)
+        exclusive   = true,                   -- Refuse any other type of clients (by classes)
         screen      = {1},
         layout      = awful.layout.suit.max, -- Use the tile layout
         floating    = false, -- Use the tile layout
