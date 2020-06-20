@@ -63,7 +63,7 @@ local LeftPanel = function(s)
                     storage_bar,
                 },
                 nil,
-                require("widgets.left-panel.exit-button"),
+                require("widgets.left-panel.exit-button")(),
             },
         },
         ontop = true,
