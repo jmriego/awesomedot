@@ -1,6 +1,3 @@
 [submodule "tyrannical"]
 	path = tyrannical
 	url = https://github.com/Elv13/tyrannical.git
-[submodule "material-awesome"]
-	path = material-awesome
-	url = https://github.com/PapyElGringo/material-awesome.git

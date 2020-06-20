@@ -321,7 +321,6 @@ awful.screen.connect_for_each_screen(function(s)
     s.mywibox = awful.wibar({ position = "top", screen = s })
 
     s.left_panel = require("widgets.left-panel")(s)
-    s.left_panel.visible = false -- start hidden
 
     -- Add widgets to the wibox
     s.mywibox:setup {

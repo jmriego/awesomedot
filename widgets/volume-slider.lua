@@ -17,6 +17,7 @@ local wibox = require("wibox")
 
 local GET_VOLUME_CMD = 'amixer -D pulse sget Master'
 local STEP = 5
+local MAX_VALUE = 100
 local SET_VOLUME_CMD = function(x) return 'amixer -D pulse sset Master ' .. x .. '%' end
 local TOG_VOLUME_CMD = 'amixer -D pulse sset Master toggle'
 local PATH_TO_ICONS = gears.filesystem.get_configuration_dir() .. "widgets/icons/"
@@ -36,8 +37,6 @@ local GET_CURRENT_VALUE = function(stdout)
 end
 
 
-local widget = {}
-
 local function worker(args)
 
     local args = args or {}
@@ -52,10 +51,15 @@ local function worker(args)
 
     local get_volume_cmd = args.get_volume_cmd or GET_VOLUME_CMD
     local set_volume_cmd = args.set_volume_cmd or SET_VOLUME_CMD
+    local read_only = args.read_only or false
     local step = args.step or STEP
+    local max_value = args.max_value or MAX_VALUE
     local tog_volume_cmd = args.tog_volume_cmd or TOG_VOLUME_CMD
     local path_to_icons = args.path_to_icons or PATH_TO_ICONS
     local icons = args.icons or ICONS
+    if type(icons) == "string" then
+        icons = {default=icons}
+    end
     local get_current_value = args.get_current_value or GET_CURRENT_VALUE
 
     local get_icon = function(v)
@@ -81,14 +85,15 @@ local function worker(args)
 
     local volumeprogressbar_widget = wibox.widget {
         id = "progressbar",
-        max_value = 100,
+        max_value = max_value,
         shape = gears.shape[shape],
         widget = wibox.widget.progressbar,
     }
 
     local volumeslider_widget = wibox.widget {
         id = "slider",
-        maximum = 100,
+        maximum = max_value,
+        visible = false,
         bar_height = 0,
         handle_shape = gears.shape[handle_shape],
         widget = wibox.widget.slider
@@ -100,9 +105,13 @@ local function worker(args)
             layout = wibox.container.margin,
             wibox.widget {
                 wibox.widget {
-                    volumeicon_widget,
-                    widget = wibox.container.constraint,
-                    height = icon_height,
+                    wibox.widget {
+                        volumeicon_widget,
+                        widget = wibox.container.constraint,
+                        height = icon_height,
+                    },
+                    widget = wibox.container.margin,
+                    right = 10
                 },
                 wibox.widget {
                     wibox.widget {
@@ -113,11 +122,11 @@ local function worker(args)
                                 height = progressbar_height,
                             },
                             layout = wibox.container.margin,
-                            top = (height - progressbar_height) / 2
+                            top = progressbar_height and (height - progressbar_height) / 2
                         },
                         layout = wibox.layout.align.vertical
                     },
-                    volumeslider_widget,
+                    not read_only and volumeslider_widget or nil,
                     layout = wibox.layout.stack
                 },
                 layout = wibox.layout.align.horizontal
@@ -147,7 +156,9 @@ local function worker(args)
 
     volumeslider_widget:connect_signal("property::value", function()
         if value ~= volumeslider_widget.value then
-            awful.spawn(set_volume_cmd(volumeslider_widget.value))
+            if not read_only then
+                awful.spawn(set_volume_cmd(volumeslider_widget.value))
+            end
             volumeprogressbar_widget.value = volumeslider_widget.value
             volumeicon_widget.image = get_icon(volumeslider_widget.value)
         end
@@ -155,7 +166,9 @@ local function worker(args)
 
     volumeicon_widget:connect_signal("button::release", function(_, _, _, button)
         if (button == 1) then
-            awful.spawn(tog_volume_cmd)
+            if not read_only then
+                awful.spawn(tog_volume_cmd)
+            end
             spawn.easy_async(
                 get_volume_cmd,
                 function(stdout, stderr, exitreason, exitcode)
@@ -177,4 +190,4 @@ local function worker(args)
     return volumebar_with_margins
 end
 
-return setmetatable(widget, { __call = function(_, ...) return worker(...) end })
+return setmetatable({}, { __call = function(_, ...) return worker(...) end })
