@@ -19,10 +19,11 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- Enable hotkeys help widget for VIM and other apps
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
-
 -- Load Debian menu entries
 local debian = require("debian.menu")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
+
+require("spotify")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -232,7 +233,7 @@ mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
 -- Create a textclock widget
-mytextclock = wibox.widget.textclock()
+mytextclock = wibox.widget.textclock('<span color="#ffffff" font="Roboto 11"> %d %b %H:%M </span>', 5)
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -461,7 +462,11 @@ globalkeys = gears.table.join(
 
     awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer set Master toggle") end, false),
     awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 5%-") end, false),
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 5%+") end, false)
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 5%+") end, false),
+    awful.key({ }, "XF86AudioPlay", sendToSpotify("PlayPause")), --  XF86AudioPlay
+    awful.key({ }, "XF86AudioNext", sendToSpotify("Next")), -- XF86AudioNext
+    awful.key({ }, "XF86AudioPrev", sendToSpotify("Previous")) -- XF86AudioPrev
+    
 )
 
 clientkeys = gears.table.join(

@@ -31,6 +31,21 @@ local LeftPanel = function(s)
         progressbar_height=with_dpi(2)
     })
 
+    ram_bar = require("widgets.ram-widget")({
+        height=with_dpi(32),
+        progressbar_height=with_dpi(2)
+    })
+
+    temperature_bar = require("widgets.cputemp-widget")({
+        height=with_dpi(32),
+        progressbar_height=with_dpi(2)
+    })
+
+    storage_bar = require("widgets.storage-widget")({
+        height=with_dpi(32),
+        progressbar_height=with_dpi(2)
+    })
+
     left_panel:setup {
         layout = wibox.container.margin,
         { layout = wibox.container.margin,
@@ -43,7 +58,9 @@ local LeftPanel = function(s)
                     volume_bar,
                     hardware_header,
                     cpu_bar,
-                    -- hardware_header
+                    ram_bar,
+                    temperature_bar,
+                    storage_bar,
                 },
                 nil,
                 require("widgets.left-panel.exit-button"),
@@ -56,7 +73,12 @@ local LeftPanel = function(s)
         right=with_dpi(20)
     }
 
-    local timers = { volume_bar.watchtimer, cpu_bar.watchtimer }
+    local timers = {
+        volume_bar.watchtimer,
+        cpu_bar.watchtimer,
+        ram_bar.watchtimer,
+        temperature_bar.watchtimer,
+        storage_bar.watchtimer }
     review_timers = function()
         for _,t in ipairs(timers) do
             if not left_panel.visible and t.started then

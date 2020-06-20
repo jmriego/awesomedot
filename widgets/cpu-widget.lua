@@ -18,10 +18,6 @@ local get_cpu_value = function(stdout)
 end
 
 local function worker(args)
-    local idle_prev = 0
-    local total_prev = 0
-
-
     local args = args or {}
     args.read_only = true
     args.get_volume_cmd = [[bash -c "cat /proc/stat | grep '^cpu '"]]
