@@ -4,7 +4,8 @@
  */
 
 configuration {
-	display-drun:    "Activate";
+	display-window:    "";
+	display-drun:    "    ";
 	display-run:     "Execute";
 	show-icons:      true;	
 	sidebar-mode:    true;
@@ -12,7 +13,7 @@ configuration {
 }
 
 * {
-	background-color:            rgb(18, 30, 37);
+	background-color:            #25333f;
 	text-color:                  #d3d7cf;
 	selbg:                       rgb(0, 86, 136);
 	actbg:                       rgb(22, 37, 46);
@@ -40,13 +41,14 @@ configuration {
 	hide-scrollbar:              "true";
 	margin:                      0px;
 	padding:                     0px;
-	font:            "Roboto medium 10";
+	font:            "Ubuntu 14";
 }
 
 window {
 	location:	 west;
 	anchor:		 west;
 	x-offset: 0px;
+	y-offset: 32px;
 	height:		 100%;
 	margin-right: 60px;
 	orientation: horizontal;
@@ -94,7 +96,7 @@ entry {
 	background-color: rgb(25, 41, 51);
 	vertical-align: 1;
 	padding:        12px;
-	font:            "Roboto medium 13";
+	font:            "Ubuntu medium 13";
 }
 
 element normal.normal {

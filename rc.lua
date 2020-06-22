@@ -23,6 +23,9 @@ require("awful.hotkeys_popup.keys")
 local debian = require("debian.menu")
 local has_fdo, freedesktop = pcall(require, "freedesktop")
 
+local with_dpi = beautiful.xresources.apply_dpi
+local get_dpi = beautiful.xresources.get_dpi
+
 require("spotify")
 
 -- {{{ Error handling
@@ -70,7 +73,7 @@ modkey = "Mod4"
 -- {{{ Tyrannical Tags
 tyrannical.tags = {
     {
-        -- name        = "Code",                 -- Call the tag "Term"
+        name        = "Code",                 -- Call the tag "Term"
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/code-braces.svg",
         init        = true,                   -- Load the tag on startup
         exclusive   = true,                   -- Refuse any other type of clients (by classes)
@@ -82,7 +85,7 @@ tyrannical.tags = {
         }
     } ,
     {
-        -- name        = "Mail",                 -- Call the tag "Mail"
+        name        = "Mail",                 -- Call the tag "Mail"
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/ship-wheel.svg",
         init        = true,                   -- Load the tag on startup
         exec_once   = {
@@ -98,7 +101,7 @@ tyrannical.tags = {
         instance = {"mail.google.com", "www.google.com__calendar_render"},
     } ,
     {
-        -- name        = "Internet",
+        name        = "Internet",
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/google-chrome.svg",
         init        = true,
         exclusive   = true,
@@ -112,7 +115,7 @@ tyrannical.tags = {
             "Google-chrome", "nightly"   , "minefield" }
     } ,
     {
-        -- name        = "Comms",
+        name        = "Comms",
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/forum.svg",
         screen      = {1},
         exec_once   = {"slack"}, --When the tag is accessed for the first time, execute this command
@@ -125,7 +128,7 @@ tyrannical.tags = {
         class = { "slack" }
     } ,
     {
-        -- name        = "Others",
+        name        = "Others",
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/flask.svg",
         screen      = {1,2,3},
         fallback    = true,
@@ -233,7 +236,7 @@ mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
 -- Create a textclock widget
-mytextclock = wibox.widget.textclock('<span color="#ffffff" font="Roboto 11"> %d %b %H:%M </span>', 5)
+mytextclock = wibox.widget.textclock('<span color="#ffffff" font="Ubuntu medium 10"> %d %b %H:%M </span>', 5)
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -308,6 +311,9 @@ awful.screen.connect_for_each_screen(function(s)
     s.mytaglist = awful.widget.taglist {
         screen  = s,
         filter  = awful.widget.taglist.filter.all,
+        style = {
+            font = "0"
+        },
         buttons = taglist_buttons
     }
 
@@ -319,9 +325,10 @@ awful.screen.connect_for_each_screen(function(s)
     }
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
+    status_bar_height = with_dpi(18)
+    s.mywibox = awful.wibar({ position = "top", screen = s, height=status_bar_height })
 
-    s.left_panel = require("widgets.left-panel")(s)
+    s.left_panel = require("widgets.left-panel")(s, status_bar_height)
 
     -- Add widgets to the wibox
     s.mywibox:setup {
@@ -347,13 +354,11 @@ end)
 -- {{{ Mouse bindings
 root.buttons(gears.table.join(
     awful.button({ }, 3, function () mymainmenu:toggle() end),
-    awful.button({ }, 4, awful.tag.viewnext),
-    awful.button({ }, 5, awful.tag.viewprev)
+    awful.button({ }, 4, awful.tag.viewprev),
+    awful.button({ }, 5, awful.tag.viewnext)
 ))
 -- }}}
 
-local with_dpi = beautiful.xresources.apply_dpi
-local get_dpi = beautiful.xresources.get_dpi
 rofi= 'rofi --dpi ' .. get_dpi() .. ' -width ' .. with_dpi(400) .. ' -show combi -combi-modi window,drun -theme ' .. gears.filesystem.get_configuration_dir() .. '/rofi.rasi'
 
 -- {{{ Key bindings
@@ -513,6 +518,16 @@ clientkeys = gears.table.join(
         {description = "(un)maximize horizontally", group = "client"})
 )
 
+
+-- Save tag names for each client so they can be reused in a different screen
+local save_tags = function(c)
+    local tag_names = {}
+    for _, tag in pairs(c:tags()) do
+        tag_names[#tag_names+1] = tag.name
+    end
+    c.tag_names = tag_names
+end
+
 -- Bind all key numbers to tags.
 -- Be careful: we use keycodes to make it work on any keyboard layout.
 -- This should map on the top row of your keyboard, usually 1 to 9.
@@ -542,9 +557,11 @@ for i = 1, 9 do
         awful.key({ modkey, "Shift" }, "#" .. i + 9,
                   function ()
                       if client.focus then
+                          local c = client.focus
                           local tag = client.focus.screen.tags[i]
                           if tag then
-                              client.focus:move_to_tag(tag)
+                              c:move_to_tag(tag)
+                              save_tags(c)
                           end
                      end
                   end,
@@ -553,9 +570,11 @@ for i = 1, 9 do
         awful.key({ modkey, "Control", "Shift" }, "#" .. i + 9,
                   function ()
                       if client.focus then
+                          local c = client.focus
                           local tag = client.focus.screen.tags[i]
                           if tag then
-                              client.focus:toggle_tag(tag)
+                              c:toggle_tag(tag)
+                              save_tags(c)
                           end
                       end
                   end,
@@ -698,14 +717,54 @@ client.connect_signal("request::titlebars", function(c)
     }
 end)
 
+-- Recalculate tags for a client when changing screens
+client.connect_signal("property::screen", function(c)
+    local extra_log = ""
+    if c.tag_names then
+        for _, x in ipairs(c.tag_names) do
+            extra_log = extra_log .. x .. ", "
+        end
+    end
+    if c.tag_names then
+        tag_names = c.tag_names
+
+        local s = c.screen
+        local tags_in_screen = {}
+        for _, tag in ipairs(c.tag_names) do
+            screen_tag = awful.tag.find_by_name(s, tag)
+            if screen_tag then
+                tags_in_screen[#tags_in_screen+1] = screen_tag
+            end
+        end
+        if #tags_in_screen == 0 then
+            others_tag = awful.tag.find_by_name(s, "Others")
+            c:toggle_tag(others_tag)
+            others_tag:view_only()
+        else
+            c:tags(tags_in_screen)
+            c.first_tag:view_only()
+        end
+    end
+end)
+
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
     c:emit_signal("request::activate", "mouse_enter", {raise = false})
 end)
 
-client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
+client.connect_signal("focus", function(c)
+    c.border_color = beautiful.border_focus
+end)
+
+for c in awful.client.iterate() do
+  save_tags(c)
+end
+
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
 -- Autostart Applications
-awful.spawn.with_shell("compton --backend glx")
+awful.spawn.with_shell("xrandr --output eDP-1 --primary --mode 2560x1440 --pos 0x1602 --rotate normal --output DP-1 --mode 2560x1440 --pos 2560x0 --rotate left --output DP-2 --off --output DP-3 --mode 2560x1440 --pos 0x162 --rotate normal")
+awful.spawn.with_shell("blueman-applet")
+awful.spawn.with_shell("nm-applet")
+awful.spawn.with_shell("compton --backend glx || killall -USR1 compton")

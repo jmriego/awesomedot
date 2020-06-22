@@ -5,9 +5,16 @@ local wibox = require('wibox')
 
 local with_dpi = beautiful.xresources.apply_dpi
 
-local LeftPanel = function(s)
+local LeftPanel = function(s, status_bar_height)
 
-    left_panel = awful.wibar({ position = "left", screen = s, width=with_dpi(300), visible=false })
+    local left_panel = wibox {
+        screen = s,
+        width=with_dpi(300),
+        height = s.geometry.height - status_bar_height,
+        x = s.geometry.x,
+        y = s.geometry.y + status_bar_height,
+        ontop = true
+    }
 
     volume_header = wibox.widget {
         markup = 'Audio Settings',
@@ -79,7 +86,7 @@ local LeftPanel = function(s)
         ram_bar.watchtimer,
         temperature_bar.watchtimer,
         storage_bar.watchtimer }
-    review_timers = function()
+    local review_timers = function()
         for _,t in ipairs(timers) do
             if not left_panel.visible and t.started then
                 t:stop()
@@ -87,7 +94,7 @@ local LeftPanel = function(s)
                 t:start()
             end
         end
-        return false -- it will make the timer at startup to stop after the first run
+        return left_panel.visible -- it will make the timer stop checking after this is no longer visible
     end
 
     left_panel:connect_signal("property::visible", review_timers)
@@ -99,4 +106,4 @@ local LeftPanel = function(s)
     return left_panel
 end
 
-return LeftPanel
+return setmetatable({}, { __call = function(_, ...) return LeftPanel(...) end })
