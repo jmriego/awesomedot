@@ -80,6 +80,7 @@ local function worker(args)
     local volumeicon_widget = wibox.widget {
         id = "icon",
         image = get_icon(),
+        opacity = 0.9,
         widget = wibox.widget.imagebox,
     }
 
