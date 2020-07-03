@@ -81,7 +81,7 @@ tyrannical.tags = {
         floating    = false,
         layout      = awful.layout.suit.tile, -- Use the tile layout
         class       = { --Accept the following classes, refuse everything else (because of "exclusive=true")
-            "xterm" , "urxvt" , "aterm","URxvt","XTerm","konsole","terminator","gnome-terminal"
+            "xterm" , "urxvt" , "aterm","URxvt","XTerm","konsole","terminator","gnome-terminal", "Dbeaver"
         }
     } ,
     {
@@ -145,6 +145,7 @@ tyrannical.properties.intrusive = {
     "ksnapshot"     , "pinentry"       , "gtksu"     , "kcalc"        , "xcalc"               ,
     "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color"    ,
     "kcolorchooser" , "plasmoidviewer" , "Xephyr"    , "kruler"       , "plasmaengineexplorer",
+    "Gnome-screenshot"
 }
 
 -- Ignore the tiled layout for the matching clients
@@ -655,6 +656,9 @@ awful.rules.rules = {
     { rule_any = {type = { "dialog" }
       }, properties = { titlebars_enabled = true }
     },
+
+    { rule = { class = "XTerm" },
+      properties = { size_hints_honor = false } },
 
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
