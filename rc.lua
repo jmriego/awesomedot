@@ -253,8 +253,8 @@ local taglist_buttons = gears.table.join(
                                                   client.focus:toggle_tag(t)
                                               end
                                           end),
-                    awful.button({ }, 4, function(t) awful.tag.viewnext(t.screen) end),
-                    awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end)
+                    awful.button({ }, 4, function(t) awful.tag.viewprev(t.screen) end),
+                    awful.button({ }, 5, function(t) awful.tag.viewnext(t.screen) end)
                 )
 
 local tasklist_buttons = gears.table.join(
@@ -356,7 +356,11 @@ end)
 root.buttons(gears.table.join(
     awful.button({ }, 3, function () mymainmenu:toggle() end),
     awful.button({ }, 4, awful.tag.viewprev),
-    awful.button({ }, 5, awful.tag.viewnext)
+    awful.button({ }, 5, awful.tag.viewnext),
+    awful.button({ }, 6, function() awful.client.focus.byidx(-1) end),
+    awful.button({ }, 7, function() awful.client.focus.byidx( 1) end),
+    awful.button({ modkey }, 4, awful.tag.viewprev),
+    awful.button({ modkey }, 5, awful.tag.viewnext)
 ))
 -- }}}
 
@@ -466,9 +470,9 @@ globalkeys = gears.table.join(
     awful.key({ modkey }, "p", function() awful.util.spawn(rofi) end,
               {description = "show the menubar", group = "launcher"}),
 
-    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer set Master toggle") end, false),
-    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer set Master 5%-") end, false),
-    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer set Master 5%+") end, false),
+    awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer -D pulse sset Master toggle") end, false),
+    awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer -D pulse sset Master 5%-") end, false),
+    awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer -D pulse sset Master 5%+") end, false),
     awful.key({ }, "XF86AudioPlay", sendToSpotify("PlayPause")), --  XF86AudioPlay
     awful.key({ }, "XF86AudioNext", sendToSpotify("Next")), -- XF86AudioNext
     awful.key({ }, "XF86AudioPrev", sendToSpotify("Previous")) -- XF86AudioPrev
@@ -482,7 +486,7 @@ clientkeys = gears.table.join(
             c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
-    awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end,
+    awful.key({ modkey }, "q",      function (c) c:kill()                         end,
               {description = "close", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
               {description = "toggle floating", group = "client"}),
@@ -594,7 +598,11 @@ clientbuttons = gears.table.join(
     awful.button({ modkey }, 3, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
         awful.mouse.client.resize(c)
-    end)
+    end),
+    awful.button({ modkey }, 6, function() awful.client.focus.byidx(-1) end),
+    awful.button({ modkey }, 7, function() awful.client.focus.byidx( 1) end),
+    awful.button({ modkey }, 4, function(c) awful.tag.viewprev(c.screen) end),
+    awful.button({ modkey }, 5, function(c) awful.tag.viewnext(c.screen) end)
 )
 
 -- Set keys
