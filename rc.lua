@@ -55,7 +55,7 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init(gears.filesystem.get_themes_dir() .. "default/theme.lua")
+beautiful.init(gears.filesystem.get_configuration_dir() .. "theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "xterm"
@@ -359,7 +359,7 @@ root.buttons(gears.table.join(
 ))
 -- }}}
 
-rofi= 'rofi --dpi ' .. get_dpi() .. ' -width ' .. with_dpi(400) .. ' -show combi -combi-modi window,drun -theme ' .. gears.filesystem.get_configuration_dir() .. '/rofi.rasi'
+rofi= 'rofi --dpi ' .. get_dpi() .. ' -yoffset ' .. status_bar_height .. ' -width ' .. with_dpi(400) .. ' -show combi -combi-modi window,drun -theme ' .. gears.filesystem.get_configuration_dir() .. '/rofi.rasi'
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
@@ -768,3 +768,4 @@ awful.spawn.with_shell("xrandr --output eDP-1 --primary --mode 2560x1440 --pos 0
 awful.spawn.with_shell("blueman-applet")
 awful.spawn.with_shell("nm-applet")
 awful.spawn.with_shell("compton --backend glx || killall -USR1 compton")
+awful.spawn.with_shell("xrdb $HOME/.Xresources")

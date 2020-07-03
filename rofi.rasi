@@ -47,8 +47,6 @@ configuration {
 window {
 	location:	 west;
 	anchor:		 west;
-	x-offset: 0px;
-	y-offset: 32px;
 	height:		 100%;
 	margin-right: 60px;
 	orientation: horizontal;
