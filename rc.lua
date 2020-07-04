@@ -760,8 +760,19 @@ client.connect_signal("property::screen", function(c)
 end)
 
 -- Enable sloppy focus, so that focus follows mouse.
+-- Some windows autoraise so only follow mouse if the new client doesnt overlap
+local sloppyfocus_last = nil
 client.connect_signal("mouse::enter", function(c)
-    c:emit_signal("request::activate", "mouse_enter", {raise = false})
+    if not clients_overlapping(c, sloppyfocus_last) then
+        c:emit_signal("request::activate", "mouse_enter", {raise = false})
+        sloppyfocus_last = c
+    end
+end)
+
+client.connect_signal("unmanage", function (c)
+  if sloppyfocus_last == c then
+    sloppyfocus_last = nil
+  end
 end)
 
 client.connect_signal("focus", function(c)
