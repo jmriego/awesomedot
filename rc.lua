@@ -81,7 +81,7 @@ tyrannical.tags = {
         floating    = false,
         layout      = awful.layout.suit.tile, -- Use the tile layout
         class       = { --Accept the following classes, refuse everything else (because of "exclusive=true")
-            "xterm" , "urxvt" , "aterm","URxvt","XTerm","konsole","terminator","gnome-terminal", "Dbeaver"
+            "xterm" , "urxvt" , "aterm","URxvt","XTerm","konsole","terminator","gnome-terminal", "Dbeaver", "Java"
         }
     } ,
     {
