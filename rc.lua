@@ -497,7 +497,7 @@ clientkeys = gears.table.join(
             c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
-    awful.key({ modkey }, "`",      function (c) c:kill()                         end,
+    awful.key({ modkey, "Mod1" }, "q",      function (c) c:kill()                         end,
               {description = "close", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
               {description = "toggle floating", group = "client"}),
@@ -608,11 +608,11 @@ for s in screen do
     local tag_shortcuts = nil
     for out, _ in pairs (s.outputs) do
         if out == "DP-1" then
-            tag_shortcuts = {"u", "i", "o", "p"}
+            tag_shortcuts = {"u", "i", "o", "p", "["}
         elseif out == "DP-3" then
-            tag_shortcuts = {"j", "k", "l", ";"}
+            tag_shortcuts = {"j", "k", "l", ";", "'"}
         elseif out == "eDP-1" then
-            tag_shortcuts = screen.count() > 1 and {"m", ",", ".", "/"} or {"j", "k", "l", ";"}
+            tag_shortcuts = screen.count() > 1 and {"m", ",", ".", "/"} or {"j", "k", "l", ";", "'"}
         end
     end
     if tag_shortcuts then
