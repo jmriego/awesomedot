@@ -230,18 +230,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 -- Keyboard map indicator and switcher
-mykeyboardlayout = awful.widget.keyboardlayout()
 mybatterywidget = require("widgets.battery")
-
-kbdcfg = {}
-kbdcfg.cmd = "setxkbmap"
-kbdcfg.layout = { { "us", "" }, { "us", "intl" } } 
-kbdcfg.current = 1  -- us is our default layout
-kbdcfg.switch = function ()
-  kbdcfg.current = kbdcfg.current % #(kbdcfg.layout) + 1
-  local t = kbdcfg.layout[kbdcfg.current]
-  os.execute( kbdcfg.cmd .. " " .. t[1] .. " " .. t[2] )
-end
 
 -- {{{ Wibar
 -- Create a textclock widget
@@ -352,9 +341,8 @@ awful.screen.connect_for_each_screen(function(s)
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             mybatterywidget,
-            mykeyboardlayout,
-            wibox.widget.systray(),
             mytextclock,
+            wibox.widget.systray(),
             s.mylayoutbox,
         },
     }
@@ -377,7 +365,6 @@ rofi= 'rofi --dpi ' .. get_dpi() .. ' -yoffset ' .. status_bar_height .. ' -widt
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
-    awful.key({ modkey, "Shift" }, "space", kbdcfg.switch, {description="switch keyboard layout", group="awesome"} ),
 
     awful.key({ modkey }, "F1",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
@@ -880,7 +867,6 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 
 -- Autostart Applications
 awful.spawn.with_shell("xrandr --output eDP-1 --primary --mode 2560x1440 --pos 0x1602 --rotate normal --output DP-1 --mode 2560x1440 --pos 2560x0 --rotate left --output DP-2 --off --output DP-3 --mode 2560x1440 --pos 0x162 --rotate normal")
-awful.spawn.with_shell("blueman-applet")
 awful.spawn.with_shell("nm-applet")
 awful.spawn.with_shell("compton --backend glx || killall -USR1 compton")
 awful.spawn.with_shell("xrdb $HOME/.Xresources")
