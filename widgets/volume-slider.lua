@@ -18,7 +18,7 @@ local wibox = require("wibox")
 local GET_VOLUME_CMD = 'amixer -D pulse sget Master'
 local STEP = 5
 local MAX_VALUE = 100
-local SET_VOLUME_CMD = function(x) return 'amixer -D pulse sset Master ' .. x .. '%' end
+local SET_VOLUME_CMD = function(x) return 'amixer -D pulse sset Master ' .. x .. '% unmute' end
 local TOG_VOLUME_CMD = 'amixer -D pulse sset Master toggle'
 local PATH_TO_ICONS = gears.filesystem.get_configuration_dir() .. "widgets/icons/"
 local ICONS = {
@@ -50,6 +50,7 @@ local function worker(args)
     local margins = args.margins or 10
 
     local get_volume_cmd = args.get_volume_cmd or GET_VOLUME_CMD
+    local get_popup_cmd = args.get_popup_cmd or get_volume_cmd
     local set_volume_cmd = args.set_volume_cmd or SET_VOLUME_CMD
     local read_only = args.read_only or false
     local step = args.step or STEP
@@ -141,6 +142,16 @@ local function worker(args)
         -- forced_width = width
     }
 
+    local volume_popup =
+      awful.tooltip(
+      {
+        objects = {volumebar_with_margins},
+        mode = 'outside',
+        align = 'right',
+        preferred_positions = {'right', 'left', 'top', 'bottom'}
+      }
+    )
+
     local update_graphic = function(widget, stdout, _, _, _)
         local value = get_current_value(stdout)
 
@@ -153,6 +164,12 @@ local function worker(args)
             volumeprogressbar_widget.value = 0
             volumeslider_widget.visible = false
         end
+
+        spawn.easy_async(
+            get_popup_cmd,
+            function(stdout, stderr, exitreason, exitcode)
+                volume_popup.text = string.gsub(stdout, '\n$', '')
+            end)
     end
 
     volumeslider_widget:connect_signal("property::value", function()
