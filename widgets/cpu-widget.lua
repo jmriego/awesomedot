@@ -21,6 +21,7 @@ local function worker(args)
     local args = args or {}
     args.read_only = true
     args.get_volume_cmd = [[bash -c "cat /proc/stat | grep '^cpu '"]]
+    args.get_popup_cmd = [[bash -c "cat /proc/stat | grep '^cpu'"]]
     args.get_current_value = get_cpu_value
     args.read_only = true
     args.icons = "cpu-64-bit"

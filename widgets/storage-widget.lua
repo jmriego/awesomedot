@@ -24,6 +24,7 @@ local function worker(args)
     widget_mount = args.mount or widget_mount
     args.read_only = true
     args.get_volume_cmd = [[bash -c "df | tail -n +2"]]
+    args.get_popup_cmd = [[bash -c "df -h"]]
     args.get_current_value = get_storage_value
     args.read_only = true
     args.icons = "harddisk"
