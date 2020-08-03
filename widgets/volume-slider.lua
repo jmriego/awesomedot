@@ -21,6 +21,7 @@ local MAX_VALUE = 100
 local SET_VOLUME_CMD = function(x) return 'amixer -D pulse sset Master ' .. x .. '% unmute' end
 local TOG_VOLUME_CMD = 'amixer -D pulse sset Master toggle'
 local PATH_TO_ICONS = gears.filesystem.get_configuration_dir() .. "widgets/icons/"
+local FONT = 'Ubuntu Mono medium 12'
 local ICONS = {
     ["default"] = "audio-volume-high-symbolic",
     ["mute"] = "audio-volume-muted-symbolic",
@@ -57,6 +58,7 @@ local function worker(args)
     local max_value = args.max_value or MAX_VALUE
     local tog_volume_cmd = args.tog_volume_cmd or TOG_VOLUME_CMD
     local path_to_icons = args.path_to_icons or PATH_TO_ICONS
+    local font = args.font or FONT
     local icons = args.icons or ICONS
     if type(icons) == "string" then
         icons = {default=icons}
@@ -146,6 +148,7 @@ local function worker(args)
       awful.tooltip(
       {
         objects = {volumebar_with_margins},
+        font = font,
         mode = 'outside',
         align = 'right',
         preferred_positions = {'right', 'left', 'top', 'bottom'}
@@ -168,7 +171,7 @@ local function worker(args)
         spawn.easy_async(
             get_popup_cmd,
             function(stdout, stderr, exitreason, exitcode)
-                volume_popup.text = string.gsub(stdout, '\n$', '')
+                volume_popup.text = string.gsub(string.gsub(stdout, '\n$', ''), '^\n', '')
             end)
     end
 
