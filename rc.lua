@@ -873,7 +873,7 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- }}}
 
 -- Autostart Applications
-awful.spawn.with_shell("xrandr --output eDP-1 --primary --mode 2560x1440 --pos 0x1602 --rotate normal --output DP-1 --mode 2560x1440 --pos 2560x0 --rotate left --output DP-2 --off --output DP-3 --mode 2560x1440 --pos 0x162 --rotate normal")
+awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1602 --rotate normal --output DP-1 --auto --mode 2560x1440 --pos 2560x0 --rotate left --output DP-2 --auto --off --output DP-3 --mode 2560x1440 --pos 0x162 --rotate normal")
 awful.spawn.with_shell("nm-applet")
 awful.spawn.with_shell("killall -q compton; compton --backend glx")
 awful.spawn.with_shell("xrdb $HOME/.Xresources")
