@@ -346,9 +346,9 @@ awful.screen.connect_for_each_screen(function(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            mybatterywidget,
-            mytextclock,
-            wibox.widget.systray(),
+            s.index == 1 and mybatterywidget,
+            s.index == 1 and mytextclock,
+            s.index == 1 and wibox.widget.systray(),
             mytaskswidget,
             s.mylayoutbox,
         },
