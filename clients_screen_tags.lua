@@ -52,16 +52,24 @@ local serialise_screen_tags = function(c)
 end
 
 local restore_screen = function(c)
+    if c.disp == "" then
+        return
+    end
+
     disp = nil
     load("disp = " .. c.disp)()
     c:move_to_screen(tonumber(disp.screen))
 end
 
 local restore_tags = function(c)
+    if c.disp == "" then
+        return
+    end
+
     disp = nil
     load("disp = " .. c.disp)()
-
     local ctags = {}
+
     for i, t in ipairs(disp.tags) do
         screen_tag = awful.tag.find_by_name(c.screen, t)
         if screen_tag then

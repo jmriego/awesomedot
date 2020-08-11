@@ -493,7 +493,6 @@ globalkeys = gears.table.join(
     awful.key({ }, "XF86AudioPlay", sendToSpotify("PlayPause")), --  XF86AudioPlay
     awful.key({ }, "XF86AudioNext", sendToSpotify("Next")), -- XF86AudioNext
     awful.key({ }, "XF86AudioPrev", sendToSpotify("Previous")) -- XF86AudioPrev
-    
 )
 
 clientkeys = gears.table.join(
