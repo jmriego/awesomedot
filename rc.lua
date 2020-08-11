@@ -370,6 +370,8 @@ root.buttons(gears.table.join(
 
 rofi= 'rofi --dpi ' .. get_dpi() .. ' -yoffset ' .. status_bar_height .. ' -width ' .. with_dpi(400) .. ' -show combi -combi-modi window,drun -theme ' .. gears.filesystem.get_configuration_dir() .. '/rofi.rasi'
 
+sloppyfocus_active = true
+
 -- {{{ Key bindings
 globalkeys = gears.table.join(
 
@@ -406,6 +408,9 @@ globalkeys = gears.table.join(
               {description = "focus the client up of the focused", group = "client"}),
     awful.key({ modkey, "Control" }, "l", function () awful.client.focus.global_bydirection("right", client.focus, true) end,
               {description = "focus the client right of the focused", group = "client"}),
+
+    awful.key({ modkey, "Control" }, "f", function () sloppyfocus_active = not sloppyfocus_active end,
+              {description = "toggle sloppy focus follow mouse", group = "client"}),
 
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end,
@@ -627,7 +632,6 @@ for s in screen do
     end
 end
 
-sloppyfocus_active = true
 clientbuttons = gears.table.join(
     awful.button({ }, 1, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
@@ -636,7 +640,6 @@ clientbuttons = gears.table.join(
         c:emit_signal("request::activate", "mouse_click", {raise = true})
         awful.mouse.client.move(c)
     end),
-    awful.button({ modkey }, 2, function() sloppyfocus_active = not sloppyfocus_active end),
     awful.button({ modkey }, 3, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
         awful.mouse.client.resize(c)
@@ -831,34 +834,26 @@ client.connect_signal("property::screen", function(c)
     client_log(c, "property::screen finished")
 end)
 
--- check if c1 is completely inside c2
-local client_inside = function(c1, c2)
-    -- check if the window has coordinates (fixes case when checking against a just closed client)
-    if c1 and c2 and c1.x and c2.x then
-        c1_xright = c1.x + c1.width
-        c1_ybottom = c1.y + c1.height
-        c2_xright = c2.x + c2.width
-        c2_ybottom = c2.y + c2.height
-        return (c1.x >= c2.x and c1_xright <= c2_xright and c1.y >= c2.y and c1_ybottom <= c2_ybottom)
-    else
-        return false
-    end
-end
-
 -- Enable sloppy focus, so that focus follows mouse.
--- Some windows autoraise so only follow mouse if the new client doesnt overlap
-local sloppyfocus_last = nil
+-- We save the client stack order for the screen and replay from the first order change
 client.connect_signal("mouse::enter", function(c)
-    if sloppyfocus_active and not client_inside(sloppyfocus_last, c) then
+    if sloppyfocus_active then
+        local prev_client_stack_order = c.screen:get_clients()
         c:emit_signal("request::activate", "mouse_enter", {raise = false})
-        sloppyfocus_last = c
-    end
-end)
+        local client_stack_order = c.screen:get_clients()
 
-client.connect_signal("unmanage", function (c)
-  if sloppyfocus_last == c then
-    sloppyfocus_last = nil
-  end
+        -- check prev_client_stack_order vs client_stack_order from back to frontmost client (that's reverse order)
+        local order_changed = false
+        for i = #client_stack_order, 1, -1 do
+            if client_stack_order[i] ~= prev_client_stack_order[i] then
+                order_changed = true
+            end
+            -- from the first stack order change we restore the previous order
+            if order_changed then
+                prev_client_stack_order[i]:raise()
+            end
+        end
+    end
 end)
 
 client.connect_signal("focus", function(c)
