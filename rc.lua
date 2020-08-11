@@ -496,7 +496,7 @@ clientkeys = gears.table.join(
             c:raise()
         end,
         {description = "toggle fullscreen", group = "client"}),
-    awful.key({ modkey, "Mod1" }, "q",      function (c) c:kill()                         end,
+    awful.key({ modkey }, "q",      function (c) c:kill()                         end,
               {description = "close", group = "client"}),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
               {description = "toggle floating", group = "client"}),
@@ -519,11 +519,6 @@ clientkeys = gears.table.join(
             c:raise()
         end ,
         {description = "(un)maximize", group = "client"}),
-    awful.key({ modkey, "Control" }, "q",
-        function (c)
-            client_log(c, "DEBUG: ")
-        end ,
-        {description = "write debug information about current client", group = "client"}),
     -- awful.key({ modkey, "Control" }, "m",
         -- function (c)
             -- c.maximized_vertical = not c.maximized_vertical
@@ -774,43 +769,8 @@ client.connect_signal("request::titlebars", function(c)
     }
 end)
 
-client_log = function(c, extra_log)
-    local out = io.open("/tmp/awesomerclua.log", "a")
-    if extra_log then
-        out:write(extra_log)
-    end
-    out:write(c.name or "?")
-    out:write(" screen " .. c.screen.index)
-    out:write(" tags: ")
-    for _, tag in ipairs(c:tags()) do
-        out:write(tag.index)
-        out:write(tag.name or "?")
-        out:write(",")
-    end
-    out:write(" screentags: ")
-    for _, tag in ipairs(c.screen.tags) do
-        out:write(tag.index)
-        out:write(tag.name or "?")
-        out:write(",")
-    end
-    out:write(" tagnames: ")
-    if c.tag_names then
-        for _, tag in ipairs(c.tag_names) do
-            out:write(tag or "?")
-            out:write(",")
-        end
-    end
-    out:write("\n\n")
-    io.close(out)
-end
-
-client.connect_signal("property::tags", function(c)
-    client_log(c)
-end)
-
 -- Recalculate tags for a client when changing screens
 client.connect_signal("property::screen", function(c)
-    client_log(c, "property::screen started")
     if c.tag_names then
         tag_names = c.tag_names
 
@@ -831,7 +791,6 @@ client.connect_signal("property::screen", function(c)
             c.first_tag:view_only()
         end
     end
-    client_log(c, "property::screen finished")
 end)
 
 -- Enable sloppy focus, so that focus follows mouse.
@@ -858,7 +817,6 @@ end)
 
 client.connect_signal("focus", function(c)
     if c.tag_names == nil or #c.tag_names == 0 then
-        client_log(c, "signal::focus")
         save_tags(c)
     end
     c.border_color = beautiful.border_focus
