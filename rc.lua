@@ -27,6 +27,10 @@ local with_dpi = beautiful.xresources.apply_dpi
 local get_dpi = beautiful.xresources.get_dpi
 
 require("spotify")
+clients_screen_tags = require("clients_screen_tags")
+
+awful.client.property.persist("startup", "boolean")
+awful.client.property.persist("disp", "string")
 
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
@@ -431,7 +435,10 @@ globalkeys = gears.table.join(
     -- Standard program
     awful.key({ modkey, "Mod1"   }, "space", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
-    awful.key({ modkey, "Control" }, "r", awesome.restart,
+    awful.key({ modkey, "Control" }, "r", function()
+        clients_screen_tags.backup_clients_screen()
+        awesome.restart()
+        end,
               {description = "reload awesome", group = "awesome"}),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit,
               {description = "quit awesome", group = "awesome"}),
@@ -534,16 +541,6 @@ clientkeys = gears.table.join(
 )
 
 
--- Save tag names for each client so they can be reused in a different screen
-local save_tags = function(c)
-    local tag_names = {}
-    for _, tag in pairs(c:tags()) do
-        tag_names[#tag_names+1] = tag.name
-    end
-    c.tag_names = tag_names
-    client_log(c, "saved tags: ")
-end
-
 -- Bind all key numbers to tags.
 -- Be careful: we use keycodes to make it work on any keyboard layout.
 -- This should map on the top row of your keyboard, usually 1 to 9.
@@ -577,7 +574,7 @@ for i = 1, 9 do
                           local tag = client.focus.screen.tags[i]
                           if tag then
                               c:move_to_tag(tag)
-                              save_tags(c)
+                              clients_screen_tags.serialise_screen_tags(c)
                           end
                      end
                   end,
@@ -590,7 +587,7 @@ for i = 1, 9 do
                           local tag = client.focus.screen.tags[i]
                           if tag then
                               c:toggle_tag(tag)
-                              save_tags(c)
+                              clients_screen_tags.serialise_screen_tags(c)
                           end
                       end
                   end,
@@ -720,7 +717,6 @@ client.connect_signal("manage", function (c)
     -- Set the windows at the slave,
     -- i.e. put it at the end of others instead of setting it master.
     -- if not awesome.startup then awful.client.setslave(c) end
-
     if awesome.startup
       and not c.size_hints.user_position
       and not c.size_hints.program_position then
@@ -771,26 +767,7 @@ end)
 
 -- Recalculate tags for a client when changing screens
 client.connect_signal("property::screen", function(c)
-    if c.tag_names then
-        tag_names = c.tag_names
-
-        local s = c.screen
-        local tags_in_screen = {}
-        for _, tag in ipairs(c.tag_names) do
-            screen_tag = awful.tag.find_by_name(s, tag)
-            if screen_tag then
-                tags_in_screen[#tags_in_screen+1] = screen_tag
-            end
-        end
-        if #tags_in_screen == 0 then
-            others_tag = awful.tag.find_by_name(s, "Others")
-            c:toggle_tag(others_tag)
-            others_tag:view_only()
-        else
-            c:tags(tags_in_screen)
-            c.first_tag:view_only()
-        end
-    end
+    clients_screen_tags.restore_tags(c)
 end)
 
 -- Enable sloppy focus, so that focus follows mouse.
@@ -816,14 +793,24 @@ client.connect_signal("mouse::enter", function(c)
 end)
 
 client.connect_signal("focus", function(c)
-    if c.tag_names == nil or #c.tag_names == 0 then
-        save_tags(c)
-    end
     c.border_color = beautiful.border_focus
+end)
+
+client.connect_signal("manage", function(c)
+    clients_screen_tags.serialise_screen_tags(c)
 end)
 
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
+
+gears.timer.delayed_call(function()
+    for _, c in ipairs(client.get()) do
+        clients_screen_tags.restore_screen(c)
+        clients_screen_tags.restore_tags(c)
+    end
+end)
+
+-- tags.tags definition
 
 -- Autostart Applications
 awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1602 --rotate normal --output DP-1 --auto --mode 2560x1440 --pos 2560x0 --rotate left --output DP-2 --auto --off --output DP-3 --mode 2560x1440 --pos 0x162 --rotate normal")
