@@ -27,7 +27,7 @@ local with_dpi = beautiful.xresources.apply_dpi
 local get_dpi = beautiful.xresources.get_dpi
 
 require("spotify")
-clients_screen_tags = require("clients_screen_tags")
+client_utils = require("client_utils")
 
 awful.client.property.persist("startup", "boolean")
 awful.client.property.persist("disp", "string")
@@ -436,7 +436,7 @@ globalkeys = gears.table.join(
     awful.key({ modkey, "Mod1"   }, "space", function () awful.spawn(terminal) end,
               {description = "open a terminal", group = "launcher"}),
     awful.key({ modkey, "Control" }, "r", function()
-        clients_screen_tags.backup_clients_screen()
+        client_utils.backup_clients_screen()
         awesome.restart()
         end,
               {description = "reload awesome", group = "awesome"}),
@@ -573,7 +573,7 @@ for i = 1, 9 do
                           local tag = client.focus.screen.tags[i]
                           if tag then
                               c:move_to_tag(tag)
-                              clients_screen_tags.serialise_screen_tags(c)
+                              client_utils.serialise_screen_tags(c)
                           end
                      end
                   end,
@@ -586,7 +586,7 @@ for i = 1, 9 do
                           local tag = client.focus.screen.tags[i]
                           if tag then
                               c:toggle_tag(tag)
-                              clients_screen_tags.serialise_screen_tags(c)
+                              client_utils.serialise_screen_tags(c)
                           end
                       end
                   end,
@@ -766,7 +766,7 @@ end)
 
 -- Recalculate tags for a client when changing screens
 client.connect_signal("property::screen", function(c)
-    clients_screen_tags.restore_tags(c)
+    client_utils.restore_tags(c)
 end)
 
 -- Enable sloppy focus, so that focus follows mouse.
@@ -796,7 +796,7 @@ client.connect_signal("focus", function(c)
 end)
 
 client.connect_signal("manage", function(c)
-    clients_screen_tags.serialise_screen_tags(c)
+    client_utils.serialise_screen_tags(c)
 end)
 
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
@@ -804,8 +804,8 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 
 gears.timer.delayed_call(function()
     for _, c in ipairs(client.get()) do
-        clients_screen_tags.restore_screen(c)
-        clients_screen_tags.restore_tags(c)
+        client_utils.restore_screen(c)
+        client_utils.restore_tags(c)
     end
 end)
 
