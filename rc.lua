@@ -84,6 +84,12 @@ tyrannical.tags = {
         screen      = screen.count()>1 and {2,3} or {1},
         floating    = false,
         layout      = awful.layout.suit.tile, -- Use the tile layout
+        force_screen = true,
+        on_select   = function()
+            client_utils.run_once(
+                'xterm',
+                {class="XTerm", screen=awful.screen.focused()})
+            end,
         class       = { --Accept the following classes, refuse everything else (because of "exclusive=true")
             "xterm" , "urxvt" , "aterm","URxvt","XTerm","konsole","terminator","gnome-terminal", "Dbeaver", "Java"
         }
@@ -92,15 +98,18 @@ tyrannical.tags = {
         name        = "Mail",                 -- Call the tag "Mail"
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/ship-wheel.svg",
         init        = true,                   -- Load the tag on startup
-        exec_once   = {
-            "/home/jvalenzuela/workconfig/bin/gmail.sh",
-            "/home/jvalenzuela/workconfig/bin/google-calendar.sh",
-            -- "google-chrome-stable --app=https://mail.google.com",
-            -- "google-chrome-stable --app=https://www.google.com/calendar/render",
-        },
+        on_select   = function()
+            client_utils.run_once(
+                'google-chrome-stable --app="https://mail.google.com"',
+                {instance="mail.google.com"})
+            client_utils.run_once(
+                'google-chrome-stable --app="https://www.google.com/calendar/render"',
+                {instance="www.google.com__calendar_render"})
+            end,
         exclusive   = true,                   -- Refuse any other type of clients (by classes)
         screen      = {1},
         layout      = awful.layout.suit.max, -- Use the tile layout
+        force_screen = true,
         floating    = false, -- Use the tile layout
         instance = {"mail.google.com", "www.google.com__calendar_render"},
     } ,
@@ -110,10 +119,15 @@ tyrannical.tags = {
         init        = true,
         exclusive   = true,
         screen      = screen.count()>2 and {1,3} or {1,2},-- Setup on screen 2 if there is more than 1 screen, else on screen 1
-        -- exec_once   = {"/opt/google/chrome/chrome"}, --When the tag is accessed for the first time, execute this command
+        on_select   = function()
+            client_utils.run_once(
+                'google-chrome-stable',
+                {instance="google-chrome", screen=awful.screen.focused()})
+            end,
         screen      = screen.count()>1 and {2,3} or {1},
         floating    = false,
         layout      = awful.layout.suit.max,      -- Use the max layout
+        force_screen = true,
         class = {
             "Opera"         , "Firefox"        , "Rekonq"    , "Dillo"        , "Arora",
             "Google-chrome", "nightly"   , "minefield" }
@@ -127,6 +141,7 @@ tyrannical.tags = {
                              -- client in the "class" section will start. It will be created on
                              -- the client startup screen
         layout      = awful.layout.suit.tile,
+        force_screen = true,
         floating    = false,
         instance = { "crx_nckgahadagoaajjgafhacjanaoiihapd" },
         class = { "slack" }
@@ -423,18 +438,30 @@ globalkeys = gears.table.join(
               {description = "swap with previous client by index", group = "client"}),
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto,
               {description = "jump to urgent client", group = "client"}),
-    awful.key({ modkey,           }, "Tab",
-        function ()
-            awful.client.focus.history.previous()
-            if client.focus then
-                client.focus:raise()
-            end
-        end,
-        {description = "go back", group = "client"}),
 
     -- Standard program
-    awful.key({ modkey, "Mod1"   }, "space", function () awful.spawn(terminal) end,
-              {description = "open a terminal", group = "launcher"}),
+    awful.key({ modkey, "Mod1" }, "space", function () client_utils.run_or_raise('xterm', {class="XTerm"}) end,
+              {description = "go to terminal", group = "launcher"}),
+
+    awful.key({ modkey, "Mod1", "Shift"  }, "space", function () awful.spawn(terminal) end,
+              {description = "open a new terminal", group = "launcher"}),
+
+    awful.key({ modkey }, ".",
+              function() end,
+              function ()
+                  client_utils.run_or_raise('google-chrome-stable', {instance="google-chrome"})
+                  gears.timer.start_new(
+                      0.2,
+                      function ()
+                          root.fake_input("key_press", "Control_L")
+                          root.fake_input("key_press", "period")
+                          root.fake_input("key_release", "period")
+                          root.fake_input("key_release", "Control_L")
+                          return false
+                      end)
+              end,
+              {description = "choose chrome tab", group = "launcher"}),
+
     awful.key({ modkey, "Control" }, "r", function()
         client_utils.backup_clients_screen()
         awesome.restart()
@@ -508,7 +535,7 @@ clientkeys = gears.table.join(
               {description = "toggle floating", group = "client"}),
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end,
               {description = "move to master", group = "client"}),
-    awful.key({ modkey,           }, "o",      function (c) c:move_to_screen()               end,
+    awful.key({ modkey,           }, "o",      function (c) c:move_to_screen(); c:jump_to()  end,
               {description = "move to screen", group = "client"}),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end,
               {description = "toggle keep on top", group = "client"}),
@@ -525,12 +552,12 @@ clientkeys = gears.table.join(
             c:raise()
         end ,
         {description = "(un)maximize", group = "client"}),
-    -- awful.key({ modkey, "Control" }, "m",
-        -- function (c)
-            -- c.maximized_vertical = not c.maximized_vertical
-            -- c:raise()
-        -- end ,
-        -- {description = "(un)maximize vertically", group = "client"}),
+    awful.key({ modkey, "Control" }, "m",
+        function (c)
+            c.maximized_vertical = not c.maximized_vertical
+            c:raise()
+        end ,
+        {description = "(un)maximize vertically", group = "client"}),
     awful.key({ modkey, "Shift"   }, "m",
         function (c)
             c.maximized_horizontal = not c.maximized_horizontal
@@ -619,8 +646,64 @@ for s in screen do
                     {description = "view tag #" .. tag_num .. " in screen " .. s.index, group = "tag"}
                 )
             )
+            globalkeys = gears.table.join(globalkeys,
+                awful.key({ modkey, "Mod1", "Shift" }, tag_key,
+                    function()
+                        local c = client.focus
+                        local tag = s.tags[tag_num]
+                        if tag then
+                            awful.screen.focus(s)
+                            c:move_to_tag(tag)
+                            client_utils.serialise_screen_tags(c)
+                        end
+                    end,
+                    {description = "move focused client to tag #" .. tag_num .. " in screen " .. s.index, group = "tag"}
+                )
+            )
         end
     end
+end
+
+local app_shortcuts = {
+    ["GMail"] = function()
+                client_utils.run_or_raise(
+                    'google-chrome-stable --app="https://mail.google.com"',
+                    {instance="mail.google.com"})
+            end,
+    ["Calendar"] = function()
+                client_utils.run_or_raise(
+                    'google-chrome-stable --app="https://www.google.com/calendar/render"',
+                    {instance="www.google.com__calendar_render"})
+            end,
+    ["Browser"] = function()
+                client_utils.run_or_raise(
+                    'google-chrome-stable --force-device-scale-factor=1.2',
+                    {instance="google-chrome"})
+            end,
+    ["Slack"] = function()
+                client_utils.run_or_raise(
+                    'slack',
+                    {instance=="Slack"})
+            end,
+    ["Hangouts"] = function()
+                c = client_utils.find_client(
+                    {instance="crx_nckgahadagoaajjgafhacjanaoiihapd"})
+                if c then
+                    c:jump_to()
+                end
+            end,
+    ["DBeaver"] = function()
+                client_utils.run_or_raise(
+                    'dbeaver',
+                    {instance=="DBeaver"})
+            end
+}
+
+for app, func in pairs(app_shortcuts) do
+    local key = app:sub(1,1):lower()
+    globalkeys = gears.table.join(globalkeys,
+        awful.key({ modkey, "Mod1" }, key, func, {description = "Open " .. app, group = "launcher"})
+    )
 end
 
 clientbuttons = gears.table.join(
@@ -643,6 +726,35 @@ clientbuttons = gears.table.join(
 
 -- Set keys
 root.keys(globalkeys)
+local history_active = true
+local history_mappings = awful.keygrabber {
+    stop_key = modkey,
+    stop_event = "release",
+    start_callback = function() history_active = false end,
+    stop_callback  = function()
+        awful.client.focus.history.add(client.focus)
+        history_active = true
+    end,
+    keybindings = {
+        {{modkey         }, 'Tab', function()
+            local c = client_utils.history_get(1)
+            if c then
+                c:jump_to()
+                c:raise()
+            end
+        end,
+        {description = "go to previous client in history", group = "client"}},
+        {{modkey, 'Shift'}, 'Tab', function()
+            local c = client_utils.history_get(-1)
+            if c then
+                c:jump_to()
+                c:raise()
+            end
+        end,
+        {description =  "go to next client in history", group = "client"}}
+    },
+    export_keybindings = true
+}
 -- }}}
 
 -- {{{ Rules
@@ -711,6 +823,15 @@ awful.rules.rules = {
 -- }}}
 
 -- {{{ Signals
+-- Signal function to execute when selecting a tag
+for _, t in ipairs(root.tags()) do
+    t:connect_signal("property::selected", function(t)
+        if t.selected and t.on_select and not awesome.startup then
+            t.on_select()
+        end
+    end)
+end
+
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c)
     -- Set the windows at the slave,
@@ -791,8 +912,20 @@ client.connect_signal("mouse::enter", function(c)
     end
 end)
 
+awful.client.focus.history.disable_tracking()
+local history_timer = gears.timer({
+    timeout = 0.5,
+    callback = function()
+        if history_active then
+            awful.client.focus.history.add(client.focus)
+        end
+    end,
+    single_shot = true
+})
+
 client.connect_signal("focus", function(c)
     c.border_color = beautiful.border_focus
+    history_timer:again()
 end)
 
 client.connect_signal("manage", function(c)
@@ -809,10 +942,10 @@ gears.timer.delayed_call(function()
     end
 end)
 
--- tags.tags definition
-
 -- Autostart Applications
 awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1602 --rotate normal --output DP-1 --auto --mode 2560x1440 --pos 2560x0 --rotate left --output DP-2 --auto --off --output DP-3 --mode 2560x1440 --pos 0x162 --rotate normal")
 awful.spawn.with_shell("nm-applet")
 awful.spawn.with_shell("killall -q compton; compton --backend glx")
 awful.spawn.with_shell("xrdb $HOME/.Xresources")
+awful.spawn.with_shell('imwheel -k -b "4 5 6 7 8 9 10 11 12"')
+awful.spawn.with_shell('xinput map-to-output `xinput | grep "PenTablet stylus" | cut -f 2 | cut -c 4-5` DP-3')

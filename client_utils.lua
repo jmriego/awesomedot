@@ -90,9 +90,55 @@ local backup_clients_screen = function()
     end
 end
 
+local history_get = function (idx, c)
+    local current_client = c and c or client.focus
+
+    local pos = 0
+    for i, c in ipairs(awful.client.focus.history.list) do
+       if c == current_client then
+           pos = i
+       end
+    end
+
+    return awful.client.focus.history.list[pos + idx]
+end
+
+local find_client = function(rules)
+    if type(rules) == "table" then
+        matcher = function(c) return awful.rules.match(c, rules) end
+    else
+        matcher = rules
+    end
+    for _, c in ipairs(client.get()) do
+        if matcher(c) then
+            return c
+        end
+    end
+end
+
+local run_once = function(cmd, matcher)
+    c = find_client(matcher)
+    if not c then
+        awful.spawn(cmd)
+    end
+end
+
+local run_or_raise = function(cmd, matcher)
+    c = find_client(matcher)
+    if c then
+        c:jump_to()
+    else
+        awful.spawn(cmd)
+    end
+end
+
 return {
     serialise_screen_tags = serialise_screen_tags,
     restore_screen = restore_screen,
     restore_tags = restore_tags,
+    history_get = history_get,
+    find_client = find_client,
+    run_once = run_once,
+    run_or_raise = run_or_raise,
     backup_clients_screen = backup_clients_screen
 }
