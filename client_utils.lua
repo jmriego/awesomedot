@@ -109,6 +109,13 @@ local find_client = function(rules)
     else
         matcher = rules
     end
+    -- try to find the most recently focused client for these rules
+    for _, c in ipairs(awful.client.focus.history.list) do
+        if matcher(c) then
+            return c
+        end
+    end
+    -- if not found, try by stack order
     for _, c in ipairs(client.get()) do
         if matcher(c) then
             return c

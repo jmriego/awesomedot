@@ -107,7 +107,7 @@ lock:connect_signal(
 )
 
 -- Get screen geometry
-local screen_geometry = awful.screen.focused().geometry
+local screen_geometry = screen.primary.geometry
 
 -- Create the widget
 exit_screen =

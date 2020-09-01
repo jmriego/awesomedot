@@ -28,6 +28,7 @@ local get_dpi = beautiful.xresources.get_dpi
 
 require("spotify")
 client_utils = require("client_utils")
+apps = require("apps")
 
 awful.client.property.persist("startup", "boolean")
 awful.client.property.persist("disp", "string")
@@ -87,8 +88,8 @@ tyrannical.tags = {
         force_screen = true,
         on_select   = function()
             client_utils.run_once(
-                'xterm',
-                {class="XTerm", screen=awful.screen.focused()})
+                apps.terminal.cmd,
+                gears.table.join(apps.terminal.rules, {screen=awful.screen.focused()}))
             end,
         class       = { --Accept the following classes, refuse everything else (because of "exclusive=true")
             "xterm" , "urxvt" , "aterm","URxvt","XTerm","konsole","terminator","gnome-terminal", "Dbeaver", "Java"
@@ -99,19 +100,15 @@ tyrannical.tags = {
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/ship-wheel.svg",
         init        = true,                   -- Load the tag on startup
         on_select   = function()
-            client_utils.run_once(
-                'google-chrome-stable --app="https://mail.google.com"',
-                {instance="mail.google.com"})
-            client_utils.run_once(
-                'google-chrome-stable --app="https://www.google.com/calendar/render"',
-                {instance="www.google.com__calendar_render"})
+                client_utils.run_once(apps.gmail.cmd, apps.gmail.rules)
+                client_utils.run_once(apps.calendar.cmd, apps.calendar.rules)
             end,
         exclusive   = true,                   -- Refuse any other type of clients (by classes)
         screen      = {1},
         layout      = awful.layout.suit.max, -- Use the tile layout
         force_screen = true,
         floating    = false, -- Use the tile layout
-        instance = {"mail.google.com", "www.google.com__calendar_render"},
+        instance = {apps.gmail.rules.instance, apps.calendar.rules.instance},
     } ,
     {
         name        = "Internet",
@@ -121,8 +118,8 @@ tyrannical.tags = {
         screen      = screen.count()>2 and {1,3} or {1,2},-- Setup on screen 2 if there is more than 1 screen, else on screen 1
         on_select   = function()
             client_utils.run_once(
-                'google-chrome-stable',
-                {instance="google-chrome", screen=awful.screen.focused()})
+                apps.chrome.cmd,
+                gears.table.join(apps.chrome.rules, {screen=awful.screen.focused()}))
             end,
         screen      = screen.count()>1 and {2,3} or {1},
         floating    = false,
@@ -143,7 +140,7 @@ tyrannical.tags = {
         layout      = awful.layout.suit.tile,
         force_screen = true,
         floating    = false,
-        instance = { "crx_nckgahadagoaajjgafhacjanaoiihapd" },
+        instance = {apps.hangouts.rules.instance},
         class = { "slack" }
     } ,
     {
@@ -440,7 +437,7 @@ globalkeys = gears.table.join(
               {description = "jump to urgent client", group = "client"}),
 
     -- Standard program
-    awful.key({ modkey, "Mod1" }, "space", function () client_utils.run_or_raise('xterm', {class="XTerm"}) end,
+    awful.key({ modkey, "Mod1" }, "space", function () client_utils.run_or_raise(apps.terminal.cmd, apps.terminal.rules) end,
               {description = "go to terminal", group = "launcher"}),
 
     awful.key({ modkey, "Mod1", "Shift"  }, "space", function () awful.spawn(terminal) end,
@@ -449,7 +446,7 @@ globalkeys = gears.table.join(
     awful.key({ modkey }, ".",
               function() end,
               function ()
-                  client_utils.run_or_raise('google-chrome-stable', {instance="google-chrome"})
+                  client_utils.run_or_raise(apps.chrome.cmd, apps.chrome.rules)
                   gears.timer.start_new(
                       0.2,
                       function ()
@@ -468,6 +465,9 @@ globalkeys = gears.table.join(
         end,
               {description = "reload awesome", group = "awesome"}),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit,
+              {description = "quit awesome", group = "awesome"}),
+
+    awful.key({ modkey, "Mod1"   }, "Escape", naughty.destroy_all_notifications,
               {description = "quit awesome", group = "awesome"}),
 
     awful.key({ modkey,           }, "Right",     function () awful.tag.incmwfact( 0.05)          end,
@@ -523,7 +523,7 @@ globalkeys = gears.table.join(
 )
 
 clientkeys = gears.table.join(
-    awful.key({ modkey }, "f",
+    awful.key({ modkey, "Mod1" }, "Return",
         function (c)
             c.fullscreen = not c.fullscreen
             c:raise()
@@ -531,7 +531,7 @@ clientkeys = gears.table.join(
         {description = "toggle fullscreen", group = "client"}),
     awful.key({ modkey }, "q",      function (c) c:kill()                         end,
               {description = "close", group = "client"}),
-    awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ,
+    awful.key({ modkey }, "f",  awful.client.floating.toggle                     ,
               {description = "toggle floating", group = "client"}),
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end,
               {description = "move to master", group = "client"}),
@@ -665,37 +665,16 @@ for s in screen do
 end
 
 local app_shortcuts = {
-    ["GMail"] = function()
-                client_utils.run_or_raise(
-                    'google-chrome-stable --app="https://mail.google.com"',
-                    {instance="mail.google.com"})
-            end,
-    ["Calendar"] = function()
-                client_utils.run_or_raise(
-                    'google-chrome-stable --app="https://www.google.com/calendar/render"',
-                    {instance="www.google.com__calendar_render"})
-            end,
-    ["Browser"] = function()
-                client_utils.run_or_raise(
-                    'google-chrome-stable --force-device-scale-factor=1.2',
-                    {instance="google-chrome"})
-            end,
-    ["Slack"] = function()
-                client_utils.run_or_raise(
-                    'slack',
-                    {instance=="Slack"})
-            end,
+    ["GMail"] = function() client_utils.run_or_raise(apps.gmail.cmd, apps.gmail.rules) end,
+    ["Calendar"] = function() client_utils.run_or_raise(apps.calendar.cmd, apps.calendar.rules) end,
+    ["Browser"] = function() client_utils.run_or_raise(apps.chrome.cmd, apps.chrome.rules) end,
+    ["Slack"] = function() client_utils.run_or_raise(apps.slack.cmd, apps.slack.rules) end,
+    ["DBeaver"] = function() client_utils.run_or_raise(apps.dbeaver.cmd, apps.dbeaver.rules) end,
     ["Hangouts"] = function()
-                c = client_utils.find_client(
-                    {instance="crx_nckgahadagoaajjgafhacjanaoiihapd"})
+                c = client_utils.find_client(apps.hangouts.rules)
                 if c then
                     c:jump_to()
                 end
-            end,
-    ["DBeaver"] = function()
-                client_utils.run_or_raise(
-                    'dbeaver',
-                    {instance=="DBeaver"})
             end
 }
 
@@ -824,10 +803,19 @@ awful.rules.rules = {
 
 -- {{{ Signals
 -- Signal function to execute when selecting a tag
+-- only run it if we stay in this tag for a moment
+local last_selected_tag = nil
+local tag_select_timer = gears.timer({
+    timeout = 0.3,
+    callback = function() if last_selected_tag then last_selected_tag.on_select() end end,
+    single_shot = true
+})
+
 for _, t in ipairs(root.tags()) do
     t:connect_signal("property::selected", function(t)
         if t.selected and t.on_select and not awesome.startup then
-            t.on_select()
+            last_selected_tag = t
+            tag_select_timer:again()
         end
     end)
 end
