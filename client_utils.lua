@@ -42,13 +42,17 @@ serialise = function(data)
     return serialisedData
 end
 
-local serialise_screen_tags = function(c)
-    local screen = c.screen.index
+local client_tag_names = function(c)
     local ctags = {}
     for i, t in ipairs(c:tags()) do
         ctags[i] = t.name
     end
-    c.disp = serialise({screen = screen, tags = ctags})
+    return ctags
+end
+
+local serialise_screen_tags = function(c)
+    local screen = c.screen.index
+    c.disp = serialise({screen = screen, tags = client_tag_names(c)})
 end
 
 local restore_screen = function(c)
@@ -141,6 +145,7 @@ end
 
 return {
     serialise_screen_tags = serialise_screen_tags,
+    client_tag_names = client_tag_names,
     restore_screen = restore_screen,
     restore_tags = restore_tags,
     history_get = history_get,

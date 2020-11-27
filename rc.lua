@@ -86,11 +86,7 @@ tyrannical.tags = {
         floating    = false,
         layout      = awful.layout.suit.tile, -- Use the tile layout
         force_screen = true,
-        on_select   = function()
-            client_utils.run_once(
-                apps.terminal.cmd,
-                gears.table.join(apps.terminal.rules, {screen=awful.screen.focused()}))
-            end,
+        on_select   = function() client_utils.run_once(apps.terminal.cmd, apps.code.rules) end,
         class       = { --Accept the following classes, refuse everything else (because of "exclusive=true")
             "xterm" , "urxvt" , "aterm","URxvt","XTerm","konsole","terminator","gnome-terminal", "Dbeaver", "Java"
         }
@@ -116,11 +112,7 @@ tyrannical.tags = {
         init        = true,
         exclusive   = true,
         screen      = screen.count()>2 and {1,3} or {1,2},-- Setup on screen 2 if there is more than 1 screen, else on screen 1
-        on_select   = function()
-            client_utils.run_once(
-                apps.chrome.cmd,
-                gears.table.join(apps.chrome.rules, {screen=awful.screen.focused()}))
-            end,
+        on_select   = function() client_utils.run_once(apps.chrome.cmd, apps.internet.rules) end,
         screen      = screen.count()>1 and {2,3} or {1},
         floating    = false,
         layout      = awful.layout.suit.max,      -- Use the max layout
@@ -161,7 +153,7 @@ tyrannical.properties.intrusive = {
     "ksnapshot"     , "pinentry"       , "gtksu"     , "kcalc"        , "xcalc"               ,
     "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color"    ,
     "kcolorchooser" , "plasmoidviewer" , "Xephyr"    , "kruler"       , "plasmaengineexplorer",
-    "Gnome-screenshot"
+    "Gnome-screenshot", "KeePassXC"
 }
 
 -- Ignore the tiled layout for the matching clients
@@ -651,7 +643,7 @@ for s in screen do
                     function()
                         local c = client.focus
                         local tag = s.tags[tag_num]
-                        if tag then
+                        if c and tag then
                             awful.screen.focus(s)
                             c:move_to_tag(tag)
                             client_utils.serialise_screen_tags(c)
@@ -668,6 +660,7 @@ local app_shortcuts = {
     ["GMail"] = function() client_utils.run_or_raise(apps.gmail.cmd, apps.gmail.rules) end,
     ["Calendar"] = function() client_utils.run_or_raise(apps.calendar.cmd, apps.calendar.rules) end,
     ["Browser"] = function() client_utils.run_or_raise(apps.chrome.cmd, apps.chrome.rules) end,
+    ["Firefox"] = function() client_utils.run_or_raise(apps.firefox.cmd, apps.firefox.rules) end,
     ["Slack"] = function() client_utils.run_or_raise(apps.slack.cmd, apps.slack.rules) end,
     ["DBeaver"] = function() client_utils.run_or_raise(apps.dbeaver.cmd, apps.dbeaver.rules) end,
     ["Hangouts"] = function()
@@ -931,7 +924,9 @@ gears.timer.delayed_call(function()
 end)
 
 -- Autostart Applications
-awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1602 --rotate normal --output DP-1 --auto --mode 2560x1440 --pos 2560x0 --rotate left --output DP-2 --auto --off --output DP-3 --mode 2560x1440 --pos 0x162 --rotate normal")
+-- awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1602 --rotate normal --output DP-1 --auto --mode 2560x1440 --pos 2560x0 --rotate left --output DP-2 --auto --off --output DP-3 --mode 2560x1440 --pos 0x162 --rotate normal")
+-- awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 2560x1440 --pos 0x0 --rotate normal")
+awful.spawn.with_shell("xrandr --output eDP-1 --primary --mode 2560x1440 --pos 1680x0 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 1680x1050 --pos 0x0 --rotate normal")
 awful.spawn.with_shell("nm-applet")
 awful.spawn.with_shell("killall -q compton; compton --backend glx")
 awful.spawn.with_shell("xrdb $HOME/.Xresources")

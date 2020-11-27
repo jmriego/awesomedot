@@ -1,9 +1,29 @@
 local gears = require("gears")
 local awful = require("awful")
+local client_utils = require("client_utils")
+
+local internet = {
+    rules = function(c)
+                return gears.table.hasitem(client_utils.client_tag_names(c), "Internet") and
+                c.screen == awful.screen.focused()
+            end
+}
+
+local code = {
+    rules = function(c)
+                return gears.table.hasitem(client_utils.client_tag_names(c), "Code") and
+                c.screen == awful.screen.focused()
+            end
+}
 
 local chrome = {
-    cmd = 'google-chrome-stable --force-device-scale-factor=1.2',
+    cmd = 'google-chrome-stable --force-device-scale-factor=1.0',
     rules = {instance="google-chrome"}
+}
+
+local firefox = {
+    cmd = 'env GDK_DPI_SCALE=0.75 firefox',
+    rules = {class="Firefox"}
 }
 
 local gmail = {
@@ -36,9 +56,12 @@ local terminal = {
 }
 
 return {
+ internet = internet,
+ code = code,
  gmail = gmail,
  calendar = calendar,
  chrome = chrome,
+ firefox = firefox,
  slack = slack,
  hangouts = hangouts,
  dbeaver = dbeaver,
