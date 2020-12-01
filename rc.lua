@@ -661,8 +661,10 @@ local app_shortcuts = {
     ["Calendar"] = function() client_utils.run_or_raise(apps.calendar.cmd, apps.calendar.rules) end,
     ["Browser"] = function() client_utils.run_or_raise(apps.chrome.cmd, apps.chrome.rules) end,
     ["Firefox"] = function() client_utils.run_or_raise(apps.firefox.cmd, apps.firefox.rules) end,
-    ["Slack"] = function() client_utils.run_or_raise(apps.slack.cmd, apps.slack.rules) end,
+    ["slAck"] = function() client_utils.run_or_raise(apps.slack.cmd, apps.slack.rules) end,
     ["DBeaver"] = function() client_utils.run_or_raise(apps.dbeaver.cmd, apps.dbeaver.rules) end,
+    ["Spotify"] = function() client_utils.run_or_raise(apps.spotify.cmd, apps.spotify.rules) end,
+    ["keepassXc"] = function() client_utils.run_or_raise(apps.keepassxc.cmd, apps.keepassxc.rules) end,
     ["Hangouts"] = function()
                 c = client_utils.find_client(apps.hangouts.rules)
                 if c then
@@ -672,7 +674,16 @@ local app_shortcuts = {
 }
 
 for app, func in pairs(app_shortcuts) do
+    -- app shortcut is the first upppercase letter in the app name
+    -- or the first letter if no upppercase is found
     local key = app:sub(1,1):lower()
+    for i = 1, #app do
+        local c = app:sub(i, i)
+        if string.match(c, "%u") then
+            key = c:lower()
+            break
+        end
+    end
     globalkeys = gears.table.join(globalkeys,
         awful.key({ modkey, "Mod1" }, key, func, {description = "Open " .. app, group = "launcher"})
     )

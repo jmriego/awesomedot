@@ -46,13 +46,23 @@ local hangouts = {
 }
 
 local dbeaver = {
-    cmd = 'dbeaver',
+    cmd = 'env GDK_DPI_SCALE=0.75 dbeaver-ce',
     rules = {instance="DBeaver"}
 }
 
 local terminal = {
     cmd = 'xterm',
     rules = {class="XTerm"}
+}
+
+local spotify = {
+    cmd = 'spotify',
+    rules = {class="Spotify"}
+}
+
+local keepassxc = {
+    cmd = 'keepassxc',
+    rules = {instance="KeePassXC"}
 }
 
 return {
@@ -65,5 +75,7 @@ return {
  slack = slack,
  hangouts = hangouts,
  dbeaver = dbeaver,
- terminal = terminal
+ terminal = terminal,
+ spotify = spotify,
+ keepassxc = keepassxc
 }
