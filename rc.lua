@@ -613,19 +613,54 @@ for i = 1, 9 do
     )
 end
 
+local is_screen_connected = function(name)
+    for s in screen do
+        for out, _ in pairs (s.outputs) do
+            if gears.string.startswith(tostring(out), name) then
+                return tostring(out)
+            end
+        end
+    end
+    return false
+end
+
+local laptop_screen = "eDP-1"
+local main_screen = "DP-1"
+local second_screen = "DP-3"
+local screen_shortcuts_preferences = {
+    [second_screen] = "uiop[",
+    [main_screen]   = "jkl;'",
+    [laptop_screen] = "m,./"
+}
+
+-- assign the tag shortcuts to each found screen following the table above
+-- the screen name can be eDP-1-1 instead of eDP-1 so we need to verify every name just in case
+local screen_tag_shortcuts = {}
+for screen_name, shortcuts in pairs(screen_shortcuts_preferences) do
+    local screen_found = is_screen_connected(screen_name)
+    if screen_found then
+        screen_tag_shortcuts[screen_found] = shortcuts
+    end
+end
+
+-- if we didnt assign the jkl; keys to the main screen, try to assign it to the second screen or the laptop screen instead
+if not gears.table.hasitem(screen_tag_shortcuts, screen_shortcuts_preferences[main_screen]) then
+    for _, screen_name in ipairs({second_screen, laptop_screen}) do
+        local screen_found = is_screen_connected(screen_name)
+        if screen_found then
+            screen_tag_shortcuts[screen_found] = screen_shortcuts_preferences[main_screen]
+        end
+    end
+end
+
 for s in screen do
     local tag_shortcuts = nil
     for out, _ in pairs (s.outputs) do
-        if out == "DP-1" then
-            tag_shortcuts = {"u", "i", "o", "p", "["}
-        elseif out == "DP-3" then
-            tag_shortcuts = {"j", "k", "l", ";", "'"}
-        elseif out == "eDP-1" then
-            tag_shortcuts = screen.count() > 1 and {"m", ",", ".", "/"} or {"j", "k", "l", ";", "'"}
-        end
+        tag_shortcuts = screen_tag_shortcuts[out]
     end
     if tag_shortcuts then
-        for tag_num, tag_key in ipairs(tag_shortcuts) do
+        for tag_num = 1, #tag_shortcuts do
+            local tag_key = tag_shortcuts:sub(tag_num, tag_num)
             globalkeys = gears.table.join(globalkeys,
                 awful.key({ modkey, "Mod1" }, tag_key,
                     function()
