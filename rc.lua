@@ -609,7 +609,8 @@ end
 local is_screen_connected = function(name)
     for s in screen do
         for out, _ in pairs (s.outputs) do
-            if gears.string.startswith(tostring(out), name) then
+            if gears.string.startswith(tostring(out), name)
+              or tostring(out) == string.gsub(name, "-", "-1-", 1) then
                 return tostring(out)
             end
         end
