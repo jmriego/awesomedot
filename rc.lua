@@ -428,13 +428,6 @@ globalkeys = gears.table.join(
     awful.key({ modkey,           }, "u", awful.client.urgent.jumpto,
               {description = "jump to urgent client", group = "client"}),
 
-    -- Standard program
-    awful.key({ modkey, "Mod1" }, "space", function () client_utils.run_or_raise(apps.terminal.cmd, apps.terminal.rules) end,
-              {description = "go to terminal", group = "launcher"}),
-
-    awful.key({ modkey, "Mod1", "Shift"  }, "space", function () awful.spawn(terminal) end,
-              {description = "open a new terminal", group = "launcher"}),
-
     awful.key({ modkey }, ".",
               function() end,
               function ()
@@ -691,14 +684,26 @@ for s in screen do
     end
 end
 
+-- Open App shortcuts
+globalkeys = gears.table.join(globalkeys,
+    awful.key({ modkey, "Mod1" }, "XF86AudioPlay",
+        function() client_utils.run_or_raise(apps.spotify.cmd, apps.spotify.rules) end,
+        {description = "Open Spotify", group = "launcher"}), --  XF86AudioPlay
+
+    awful.key({ modkey, "Mod1" }, "space", function () client_utils.run_or_raise(apps.terminal.cmd, apps.terminal.rules) end,
+              {description = "go to terminal", group = "launcher"}),
+
+    awful.key({ modkey, "Mod1", "Shift"  }, "space", function () awful.spawn(terminal) end,
+              {description = "open a new terminal", group = "launcher"})
+)
+
 local app_shortcuts = {
     ["GMail"] = function() client_utils.run_or_raise(apps.gmail.cmd, apps.gmail.rules) end,
     ["Calendar"] = function() client_utils.run_or_raise(apps.calendar.cmd, apps.calendar.rules) end,
     ["Browser"] = function() client_utils.run_or_raise(apps.chrome.cmd, apps.chrome.rules) end,
     ["Firefox"] = function() client_utils.run_or_raise(apps.firefox.cmd, apps.firefox.rules) end,
-    ["slAck"] = function() client_utils.run_or_raise(apps.slack.cmd, apps.slack.rules) end,
+    ["Slack"] = function() client_utils.run_or_raise(apps.slack.cmd, apps.slack.rules) end,
     ["DBeaver"] = function() client_utils.run_or_raise(apps.dbeaver.cmd, apps.dbeaver.rules) end,
-    ["Spotify"] = function() client_utils.run_or_raise(apps.spotify.cmd, apps.spotify.rules) end,
     ["keepassXc"] = function() client_utils.run_or_raise(apps.keepassxc.cmd, apps.keepassxc.rules) end,
     ["Hangouts"] = function()
                 c = client_utils.find_client(apps.hangouts.rules)
@@ -970,15 +975,15 @@ gears.timer.delayed_call(function()
 end)
 
 -- Autostart Applications
--- awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1602 --rotate normal --output DP-1 --auto --mode 2560x1440 --pos 2560x0 --rotate left --output DP-2 --auto --off --output DP-3 --mode 2560x1440 --pos 0x162 --rotate normal")
--- awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 2560x1440 --pos 0x0 --rotate normal")
+awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 0x0 --rotate normal --output DP-1-1 --mode 2560x1440 --pos 2560x0 --rotate normal --output DP-1-2 --off --output DP-1-3 --mode 2560x1440 --pos 5120x0 --rotate right")
+awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 2560x1440 --pos 0x0 --rotate normal")
 
 -- cheap monitor
-awful.spawn.with_shell("xrandr --output eDP-1 --primary --mode 2560x1440 --pos 1680x0 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 1680x1050 --pos 0x0 --rotate normal")
-awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 1680x0 --rotate normal --output DP-1-1 --off --output DP-1-2 --off --output DP-1-3 --mode 1680x1050 --pos 0x0 --rotate normal")
+-- awful.spawn.with_shell("xrandr --output eDP-1 --primary --mode 2560x1440 --pos 1680x0 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 1680x1050 --pos 0x0 --rotate normal")
+-- awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 1680x0 --rotate normal --output DP-1-1 --off --output DP-1-2 --off --output DP-1-3 --mode 1680x1050 --pos 0x0 --rotate normal")
 
 awful.spawn.with_shell("nm-applet")
 awful.spawn.with_shell("killall -q compton; compton --backend glx")
 awful.spawn.with_shell("xrdb $HOME/.Xresources")
 awful.spawn.with_shell('imwheel -k -b "4 5 6 7 8 9 10 11 12"')
-awful.spawn.with_shell('xinput map-to-output `xinput | grep "PenTablet stylus" | cut -f 2 | cut -c 4-5` DP-3')
+awful.spawn.with_shell('xinput map-to-output `xinput | grep "PenTablet stylus" | cut -f 2 | cut -c 4-5` DP-1')
