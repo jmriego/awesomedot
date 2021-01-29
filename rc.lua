@@ -133,7 +133,7 @@ tyrannical.tags = {
         force_screen = true,
         floating    = false,
         instance = {apps.hangouts.rules.instance},
-        class = { "slack" }
+        class = { "slack", "zoom" }
     } ,
     {
         name        = "Others",
