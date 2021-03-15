@@ -153,7 +153,7 @@ tyrannical.properties.intrusive = {
     "ksnapshot"     , "pinentry"       , "gtksu"     , "kcalc"        , "xcalc"               ,
     "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color"    ,
     "kcolorchooser" , "plasmoidviewer" , "Xephyr"    , "kruler"       , "plasmaengineexplorer",
-    "Gnome-screenshot", "KeePassXC"
+    "Gnome-screenshot"
 }
 
 -- Ignore the tiled layout for the matching clients
@@ -525,7 +525,7 @@ clientkeys = gears.table.join(
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end,
               {description = "toggle keep on top", group = "client"}),
 
-    awful.key({ modkey, "Shift"   }, "u", function (c) naughty.notify({ title = c.name, text = gears.debug.dump_return({class=c.class, instance=c.instance, role=c.role}) }) end,
+    awful.key({ modkey, "Shift"   }, "u", function (c) naughty.notify({ title = gears.string.quote_pattern(c.name), text = "{class=" .. c.class .. ", instance=" .. c.instance .. ", role=" .. (c.role or "") .."}" }) end,
               {description = "try to recalculate stuff", group = "client"}),
 
     awful.key({ modkey,           }, "n",
