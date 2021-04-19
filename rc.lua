@@ -843,6 +843,20 @@ awful.rules.rules = {
     { rule = { class = "XTerm" },
       properties = { size_hints_honor = false } },
 
+    {
+        rule = {
+            class = "jetbrains-studio",
+            name="^win[0-9]+$"
+        },
+        properties = { 
+            placement = awful.placement.no_offscreen,
+            titlebars_enabled = false,
+            focusable = false,
+            floating = true,
+            intrusive = true
+        }
+    }
+
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
     --   properties = { screen = 1, tag = "2" } },
