@@ -525,8 +525,8 @@ clientkeys = gears.table.join(
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end,
               {description = "toggle keep on top", group = "client"}),
 
-    awful.key({ modkey, "Shift"   }, "u", function (c) naughty.notify({ title = gears.string.quote_pattern(c.name), text = "{class=" .. c.class .. ", instance=" .. c.instance .. ", role=" .. (c.role or "") .."}" }) end,
-              {description = "try to recalculate stuff", group = "client"}),
+    awful.key({ modkey, "Shift"   }, "F1", function (c) naughty.notify({ title = c.name:gsub('[^%g%s]',''), text = "{class=" .. c.class .. ", instance=" .. c.instance .. ", role=" .. (c.role or "") .."}" }) end,
+              {description = "show client details", group = "client"}),
 
     awful.key({ modkey,           }, "n",
         function (c)
