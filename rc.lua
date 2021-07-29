@@ -88,7 +88,7 @@ tyrannical.tags = {
         force_screen = true,
         on_select   = function() client_utils.run_once(apps.terminal.cmd, apps.code.rules) end,
         class       = { --Accept the following classes, refuse everything else (because of "exclusive=true")
-            "xterm" , "urxvt" , "aterm","URxvt","XTerm","konsole","terminator","gnome-terminal", "Dbeaver", "Java"
+            "xterm" , "urxvt" , "aterm","URxvt","XTerm","konsole","terminator","gnome-terminal", "Dbeaver", "Java", "jetbrains-idea"
         }
     } ,
     {
@@ -133,7 +133,7 @@ tyrannical.tags = {
         force_screen = true,
         floating    = false,
         instance = {apps.hangouts.rules.instance},
-        class = { "slack", "zoom" }
+        class = { "slack", "zoom", "Zoom" }
     } ,
     {
         name        = "Others",
@@ -855,7 +855,11 @@ awful.rules.rules = {
             floating = true,
             intrusive = true
         }
-    }
+    },
+
+    { rule = { class = "Zoom", name="zoom" },
+      properties = { floating = true } },
+
 
     -- Set Firefox to always map on the tag named "2" on screen 1.
     -- { rule = { class = "Firefox" },
