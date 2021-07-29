@@ -997,8 +997,11 @@ gears.timer.delayed_call(function()
 end)
 
 -- Autostart Applications
-awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 0x0 --rotate normal --output DP-1-1 --mode 2560x1440 --pos 2560x0 --rotate normal --output DP-1-2 --off --output DP-1-3 --mode 2560x1440 --pos 5120x0 --rotate right")
-awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 2560x1440 --pos 0x0 --rotate normal")
+-- awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off")
+-- Mags
+awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1-1 --off --output DP-1-2 --off --output DP-1-3 --mode 2560x1440 --pos 0x0 --rotate normal")
+-- awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 0x0 --rotate normal --output DP-1-1 --mode 2560x1440 --pos 2560x0 --rotate normal --output DP-1-2 --off --output DP-1-3 --mode 2560x1440 --pos 5120x0 --rotate right")
+-- awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 2560x1440 --pos 0x0 --rotate normal")
 
 -- cheap monitor
 -- awful.spawn.with_shell("xrandr --output eDP-1 --primary --mode 2560x1440 --pos 1680x0 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 1680x1050 --pos 0x0 --rotate normal")
