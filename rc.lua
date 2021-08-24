@@ -132,7 +132,7 @@ tyrannical.tags = {
         layout      = awful.layout.suit.tile,
         force_screen = true,
         floating    = false,
-        instance = {apps.hangouts.rules.instance},
+        instance = {apps.google_chat.rules.instance},
         class = { "slack", "zoom", "Zoom" }
     } ,
     {
@@ -710,12 +710,7 @@ local app_shortcuts = {
     ["Slack"] = function() client_utils.run_or_raise(apps.slack.cmd, apps.slack.rules) end,
     ["DBeaver"] = function() client_utils.run_or_raise(apps.dbeaver.cmd, apps.dbeaver.rules) end,
     ["keepassXc"] = function() client_utils.run_or_raise(apps.keepassxc.cmd, apps.keepassxc.rules) end,
-    ["Hangouts"] = function()
-                c = client_utils.find_client(apps.hangouts.rules)
-                if c then
-                    c:jump_to()
-                end
-            end
+    ["cHat"] = function() client_utils.run_or_raise(apps.google_chat.cmd, apps.google_chat.rules) end,
 }
 
 for app, func in pairs(app_shortcuts) do

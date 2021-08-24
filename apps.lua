@@ -41,8 +41,9 @@ local slack = {
     rules = {instance=="Slack"}
 }
 
-local hangouts = {
-    rules = {instance="crx_nckgahadagoaajjgafhacjanaoiihapd"}
+local google_chat = {
+    cmd = chrome.cmd .. ' --app-id="mdpkiolbdkhdjpekfbkbmhigcaggjagi"',
+    rules = {instance="crx_mdpkiolbdkhdjpekfbkbmhigcaggjagi"}
 }
 
 local dbeaver = {
@@ -73,7 +74,7 @@ return {
  chrome = chrome,
  firefox = firefox,
  slack = slack,
- hangouts = hangouts,
+ google_chat = google_chat,
  dbeaver = dbeaver,
  terminal = terminal,
  spotify = spotify,
