@@ -125,7 +125,10 @@ tyrannical.tags = {
         name        = "Comms",
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/forum.svg",
         screen      = {1},
-        exec_once   = {"slack"}, --When the tag is accessed for the first time, execute this command
+        on_select   = function()
+                client_utils.run_once(apps.slack.cmd, apps.slack.rules)
+                client_utils.run_once(apps.google_chat.cmd, apps.google_chat.rules)
+            end,
         init        = true, -- This tag wont be created at startup, but will be when one of the
                              -- client in the "class" section will start. It will be created on
                              -- the client startup screen
@@ -865,17 +868,20 @@ awful.rules.rules = {
 -- {{{ Signals
 -- Signal function to execute when selecting a tag
 -- only run it if we stay in this tag for a moment
-local last_selected_tag = nil
 local tag_select_timer = gears.timer({
     timeout = 0.3,
-    callback = function() if last_selected_tag then last_selected_tag.on_select() end end,
+    callback = function()
+                 local selected_tag = awful.screen.focused().selected_tag
+                 if selected_tag.on_select and not awesome.startup then
+                   selected_tag.on_select()
+                 end
+               end,
     single_shot = true
 })
 
 for _, t in ipairs(root.tags()) do
     t:connect_signal("property::selected", function(t)
         if t.selected and t.on_select and not awesome.startup then
-            last_selected_tag = t
             tag_select_timer:again()
         end
     end)
@@ -993,8 +999,9 @@ end)
 
 -- Autostart Applications
 -- awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --off")
+awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 0x0 --rotate normal --output DP-1-1 --mode 2560x1440 --pos 2560x0 --rotate normal --output DP-1-2 --off --output DP-1-3 --mode 2560x1440 --pos 5120x0 --rotate right")
 -- Mags
-awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1-1 --off --output DP-1-2 --off --output DP-1-3 --mode 2560x1440 --pos 0x0 --rotate normal")
+-- awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1-1 --off --output DP-1-2 --off --output DP-1-3 --mode 2560x1440 --pos 0x0 --rotate normal")
 -- awful.spawn.with_shell("xrandr --output eDP-1-1 --mode 2560x1440 --pos 0x0 --rotate normal --output DP-1-1 --mode 2560x1440 --pos 2560x0 --rotate normal --output DP-1-2 --off --output DP-1-3 --mode 2560x1440 --pos 5120x0 --rotate right")
 -- awful.spawn.with_shell("xrandr --output eDP-1 --auto --primary --mode 2560x1440 --pos 0x1440 --rotate normal --output DP-1 --off --output DP-2 --off --output DP-3 --mode 2560x1440 --pos 0x0 --rotate normal")
 
