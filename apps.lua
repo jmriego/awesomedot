@@ -66,6 +66,11 @@ local keepassxc = {
     rules = {instance="KeePassXC"}
 }
 
+local zoom = {
+    cmd = 'zoom',
+    rules = {class="zoom"}
+}
+
 return {
  internet = internet,
  code = code,
@@ -78,5 +83,6 @@ return {
  dbeaver = dbeaver,
  terminal = terminal,
  spotify = spotify,
- keepassxc = keepassxc
+ keepassxc = keepassxc,
+ zoom = zoom
 }

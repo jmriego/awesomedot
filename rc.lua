@@ -125,10 +125,7 @@ tyrannical.tags = {
         name        = "Comms",
         icon   = gears.filesystem.get_configuration_dir() .. "material-awesome/theme/icons/forum.svg",
         screen      = {1},
-        on_select   = function()
-                client_utils.run_once(apps.slack.cmd, apps.slack.rules)
-                client_utils.run_once(apps.google_chat.cmd, apps.google_chat.rules)
-            end,
+        on_select   = function() client_utils.run_once(apps.slack.cmd, apps.slack.rules) end,
         init        = true, -- This tag wont be created at startup, but will be when one of the
                              -- client in the "class" section will start. It will be created on
                              -- the client startup screen
@@ -714,6 +711,7 @@ local app_shortcuts = {
     ["DBeaver"] = function() client_utils.run_or_raise(apps.dbeaver.cmd, apps.dbeaver.rules) end,
     ["keepassXc"] = function() client_utils.run_or_raise(apps.keepassxc.cmd, apps.keepassxc.rules) end,
     ["cHat"] = function() client_utils.run_or_raise(apps.google_chat.cmd, apps.google_chat.rules) end,
+    ["Zoom"] = function() client_utils.run_or_raise(apps.zoom.cmd, apps.zoom.rules) end,
 }
 
 for app, func in pairs(app_shortcuts) do
